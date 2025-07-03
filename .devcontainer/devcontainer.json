@@ -1,0 +1,9 @@
+{
+  "name": "animecam",
+  "dockerFile": "Dockerfile",
+
+  // ← ここを 1 行に
+  "postCreateCommand": "pip install -r requirements.txt && bash scripts/setup_repo.sh && bash scripts/download_weights.sh",
+
+  "forwardPorts": [8501]
+}

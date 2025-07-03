@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+weights/
+results/
+video/
+__pycache__/
+.vscode/
