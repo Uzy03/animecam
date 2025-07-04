@@ -1,11 +1,18 @@
 import streamlit as st, cv2, torch, numpy as np
-import sys
-sys.path.append("/home/vscode/animegan2")   # INSTALL_DIR と同じに
+# --- app/quick_demo.py の先頭付近を修正 -------------------------------
+import sys, pathlib
 
-from model import Generator                 # ← AnimeGAN2 repo 内のファイル名
-from pathlib import Path
+A2_DIR = (pathlib.Path(__file__).parent / ".." / "extern" / "AnimeGANv2").resolve()
 
-A2_DIR = (Path(__file__).resolve().parent.parent / "extern" / "AnimeGANv2").resolve()
+# 先頭に挿入すると必ずここが import 対象になる
+if str(A2_DIR) not in sys.path:
+    sys.path.insert(0, str(A2_DIR))
+
+from model import Generator                # ← extern/AnimeGANv2/model.py が入る
+# --------------------------------------------------------------------
+
+import inspect
+print("★ Generator:", inspect.getfile(Generator))
 
 DEVICE = "cuda" if torch.cuda.is_available() else (
          "mps"  if torch.backends.mps.is_available() else "cpu")
@@ -18,11 +25,30 @@ STYLE_PATHS = {
 }
 
 @st.cache_resource
+
+def load_generator(style):
+    g = Generator().to(DEVICE)
+
+    ckpt = torch.load(
+    STYLE_PATHS[style],
+    map_location=DEVICE,
+    weights_only=False   # ← これを追加
+)
+
+    # チェックポイント or 純 state_dict どちらでも動くようにしておく
+    state_dict = ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt
+
+    g.load_state_dict(state_dict, strict=True)   # strict=False なら余分キーは無視
+    g.eval()
+    return g
+#　変更日7/4
+"""
 def load_generator(style):
     g = Generator().to(DEVICE)
     g.load_state_dict(torch.load(STYLE_PATHS[style], map_location=DEVICE))
     g.eval()
     return g
+"""
 
 def to_anime(img_bgr, g):
     """OpenCV(BGR) → Anime → BGR"""

@@ -210,3 +210,8 @@ results/
 video/
 __pycache__/
 .vscode/
+extern/AnimeGANv2/weights/
+*.pth
+*.mp4
+.vscode
+__pycache__/
