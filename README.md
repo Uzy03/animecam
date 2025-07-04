@@ -26,7 +26,7 @@
 1. リポジトリを clone  
 
    ```bash
-   git clone https://github.com/<YOUR_ORG>/animecam.git
+   git clone https://github.com/Uzy03/animecam.git
    cd animecam
    ```
    
