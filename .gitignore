@@ -215,3 +215,4 @@ extern/AnimeGANv2/weights/
 *.mp4
 .vscode
 __pycache__/
+test/
