@@ -5,13 +5,16 @@ sys.path.append("/home/vscode/animegan2")   # INSTALL_DIR と同じに
 from model import Generator                 # ← AnimeGAN2 repo 内のファイル名
 from pathlib import Path
 
+A2_DIR = (Path(__file__).resolve().parent.parent / "extern" / "AnimeGANv2").resolve()
+
 DEVICE = "cuda" if torch.cuda.is_available() else (
          "mps"  if torch.backends.mps.is_available() else "cpu")
 
 STYLE_PATHS = {
-    "Hayao":   "weights/hayao.pth",
-    "Shinkai": "weights/shinkai.pth",
-    "Paprika": "weights/paprika.pth"
+    "Paprika":        A2_DIR / "weights" / "paprika.pt",
+    "FacePaint-v1":   A2_DIR / "weights" / "face_paint_512_v1.pt",
+    "FacePaint-v2":   A2_DIR / "weights" / "face_paint_512_v2.pt",
+    "Celeba-Distill": A2_DIR / "weights" / "celeba_distill.pt",
 }
 
 @st.cache_resource
@@ -21,12 +24,21 @@ def load_generator(style):
     g.eval()
     return g
 
-def to_anime(bgr, gen):
-    img = cv2.resize(bgr, (256, 256))
-    t   = torch.from_numpy(img[..., ::-1]).permute(2, 0, 1).unsqueeze(0).float() / 255
+def to_anime(img_bgr, g):
+    """OpenCV(BGR) → Anime → BGR"""
+    # ① BGR→RGB ＋ contiguous にする
+    rgb = img_bgr[..., ::-1].copy()            # または np.ascontiguousarray(img_bgr[..., ::-1])
+
+    # ② 0-1 Tensor へ
+    t = torch.from_numpy(rgb).permute(2, 0, 1).unsqueeze(0).float().to(DEVICE) / 255.0
+
+    # ③ 推論
     with torch.no_grad():
-        out = gen(t.to(DEVICE))[0].permute(1, 2, 0).cpu().numpy() * 255
-    return out[..., ::-1].astype("uint8")
+        out = g(t)[0].clamp_(0, 1)             # (3, H, W)
+
+    # ④ RGB→BGR に戻して uint8
+    out_bgr = (out.permute(1, 2, 0).cpu().numpy() * 255).astype("uint8")[..., ::-1]
+    return out_bgr
 
 st.title("AnimeCam 🎨")
 style = st.sidebar.selectbox("Style", list(STYLE_PATHS.keys()))
