@@ -27,17 +27,21 @@
 
    ```bash
    git clone https://github.com/Uzy03/animecam.git
-   cd animecam
    ```
    
-2. Dev Container を起動macOS : ⌘ ⇧ P  /  Windows/Linux : Ctrl + Shift + P を押して Command Palette を開き、Dev Containers: Reopen in Container を実行（初回のみ 5〜10 分程度でビルドが走ります）
+2. Dev Container を起動（macOS : ⌘ ⇧ P  /  Windows/Linux : Ctrl + Shift + Pを押して）、Command Palette を開き、Dev Containers: Open Folder in Container… でanimecamを選択して実行（初回のみ 5〜10 分程度でビルドが走ります）
 
-3. コンテナ内ターミナルで実行
+3. コンテナ内ターミナルでデモを実行
    ```bash
    streamlit run app/quick_demo.py --server.port 8501
    ```
 
 5. ブラウザ http://localhost:8501 を開き、カメラ使用を許可 →　サイドバーからスタイルを選んで撮影！
+
+6. 同じように，リアルタイム動画版を実行
+   ```bash
+   streamlit run app/video_processing.py --server.port 8501
+   ```
 
 
 ## 🐍 Local Python 環境で動かす場合
